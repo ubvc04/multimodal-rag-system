@@ -1,0 +1,26 @@
+{
+	"cluster": "multimodal-rag-cluster",
+	"serviceName": "multimodal-rag-service",
+	"taskDefinition": "multimodal-rag",
+	"desiredCount": 2,
+	"launchType": "FARGATE",
+	"platformVersion": "LATEST",
+	"deploymentConfiguration": {
+		"maximumPercent": 200,
+		"minimumHealthyPercent": 50
+	},
+	"networkConfiguration": {
+		"awsvpcConfiguration": {
+			"subnets": ["subnet-12345678", "subnet-87654321"],
+			"securityGroups": ["sg-12345678"],
+			"assignPublicIp": "ENABLED"
+		}
+	},
+	"loadBalancers": [
+		{
+			"targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/multimodal-rag/abcdef1234567890",
+			"containerName": "backend",
+			"containerPort": 8000
+		}
+	]
+}

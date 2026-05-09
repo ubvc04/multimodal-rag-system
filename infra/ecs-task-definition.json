@@ -1,0 +1,48 @@
+{
+	"family": "multimodal-rag",
+	"networkMode": "awsvpc",
+	"requiresCompatibilities": ["FARGATE"],
+	"cpu": "1024",
+	"memory": "2048",
+	"executionRoleArn": "arn:aws:iam::123456789012:role/ecsTaskExecutionRole",
+	"taskRoleArn": "arn:aws:iam::123456789012:role/ecsTaskRole",
+	"containerDefinitions": [
+		{
+			"name": "backend",
+			"image": "123456789012.dkr.ecr.us-east-1.amazonaws.com/multimodal-rag-backend:latest",
+			"essential": true,
+			"portMappings": [
+				{
+					"containerPort": 8000,
+					"protocol": "tcp"
+				}
+			],
+			"environment": [
+				{ "name": "ENVIRONMENT", "value": "production" }
+			],
+			"secrets": [
+				{ "name": "JWT_SECRET_KEY", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/JWT_SECRET_KEY" },
+				{ "name": "OPENAI_API_KEY", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/OPENAI_API_KEY" },
+				{ "name": "PINECONE_API_KEY", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/PINECONE_API_KEY" },
+				{ "name": "PINECONE_ENVIRONMENT", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/PINECONE_ENVIRONMENT" },
+				{ "name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/DATABASE_URL" },
+				{ "name": "REDIS_URL", "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/REDIS_URL" }
+			],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+					"awslogs-group": "/ecs/multimodal-rag",
+					"awslogs-region": "us-east-1",
+					"awslogs-stream-prefix": "backend"
+				}
+			},
+			"healthCheck": {
+				"command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
+				"interval": 30,
+				"timeout": 5,
+				"retries": 3,
+				"startPeriod": 20
+			}
+		}
+	]
+}
